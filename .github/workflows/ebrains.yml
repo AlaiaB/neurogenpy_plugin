@@ -2,26 +2,23 @@ name: Mirror to EBRAINS gitlab
 
 on:
     push:
-        branches: [ master ]
-
+        branches: [ master, dev ]
 
 jobs:
-    to_ebrains:
+    to_ebrains_master:
+        # This job will run only when there's a push to the master branch
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
-            # this task will push the master branch of the source_repo (github) to the
-            # destination_repo (ebrains gitlab)
+            # This step will sync the master branch of the source repo (GitHub) with the master branch of the destination repo (GitLab)
             - name: syncmaster
               uses: wei/git-sync@v3
-              # component owners need to set their own variables
-              # the destination_repo format is
-              # https://gitlab_service_account_name:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/name_of_mirror.git
               with:
                 source_repo: "AlaiaB/neurogenpy_plugin"
                 source_branch: "master"
                 destination_repo: "https://github_push:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/nikolas/neurogenpy_plugin"
                 destination_branch: "master"
-            # this task will push all tags from the source_repo to the destination_repo
+            # This step will sync all tags from the source repo with the destination repo
             - name: synctags
               uses: wei/git-sync@v3
               with:
@@ -29,4 +26,17 @@ jobs:
                 source_branch: "refs/tags/*"
                 destination_repo: "https://github_push:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/nikolas/neurogenpy_plugin"
                 destination_branch: "refs/tags/*"
-      
+
+    to_ebrains_dev:
+        # This job will run only when there's a push to the dev branch
+        if: github.ref == 'refs/heads/dev'
+        runs-on: ubuntu-latest
+        steps:
+            # This step will sync the dev branch of the source repo (GitHub) with the dev branch of the destination repo (GitLab)
+            - name: syncdev
+              uses: wei/git-sync@v3
+              with:
+                source_repo: "AlaiaB/neurogenpy_plugin"
+                source_branch: "dev"
+                destination_repo: "https://github_push:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/nikolas/neurogenpy_plugin"
+                destination_branch: "dev"

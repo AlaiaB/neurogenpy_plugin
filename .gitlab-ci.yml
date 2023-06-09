@@ -1,0 +1,24 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG -f http.server.dockerfile .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-worker -f http.worker.dockerfile .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-worker
+  only:
+    - master
+    - dev

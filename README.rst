@@ -1,4 +1,4 @@
-NeurogenPy
+NeurogenPy Plugin
 ==========
 
 .. include:: imgs/images.rst

@@ -1,0 +1,32 @@
+name: Mirror to EBRAINS gitlab
+
+on:
+    push:
+        branches: [ master ]
+
+
+jobs:
+    to_ebrains:
+        runs-on: ubuntu-latest
+        steps:
+            # this task will push the master branch of the source_repo (github) to the
+            # destination_repo (ebrains gitlab)
+            - name: syncmaster
+              uses: wei/git-sync@v3
+              # component owners need to set their own variables
+              # the destination_repo format is
+              # https://gitlab_service_account_name:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/name_of_mirror.git
+              with:
+                source_repo: "AlaiaB/neurogenpy_plugin"
+                source_branch: "master"
+                destination_repo: "https://github_push:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/nikolas/neurogenpy_plugin"
+                destination_branch: "master"
+            # this task will push all tags from the source_repo to the destination_repo
+            - name: synctags
+              uses: wei/git-sync@v3
+              with:
+                source_repo: "AlaiaB/neurogenpy_plugin"
+                source_branch: "refs/tags/*"
+                destination_repo: "https://github_push:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/nikolas/neurogenpy_plugin"
+                destination_branch: "refs/tags/*"
+      

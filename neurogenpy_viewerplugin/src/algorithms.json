@@ -1,0 +1,92 @@
+{
+  "algorithms": {
+    "Chow Liu": {
+      "id": "cl",
+      "available": "both"
+    },
+    "Fast-IAMB": {
+      "id": "fast_iamb",
+      "available": "both"
+    },
+    "FGES": {
+      "id": "fges",
+      "available": "continuous"
+    },
+    "FGES-Merge": {
+      "id": "fges_merge",
+      "available": "continuous"
+    },
+    "GENIE3": {
+      "id": "genie3",
+      "available": "continuous"
+    },
+    "Graphical lasso": {
+      "id": "graphical_lasso",
+      "available": "continuous"
+    },
+    "Grow shrink": {
+      "id": "grow_shrink",
+      "available": "both"
+    },
+    "Hill climbing": {
+      "id": "hc",
+      "available": "both"
+    },
+    "Hill climbing with tabu search": {
+      "id": "hc_tabu",
+      "available": "both"
+    },
+    "Hiton Parents and Children": {
+      "id": "hiton_pc",
+      "available": "both"
+    },
+    "IAMB": {
+      "id": "iamb",
+      "available": "both"
+    },
+    "Inter-IAMB": {
+      "id": "inter_iamb",
+      "available": "both"
+    },
+    "Linear regression": {
+      "id": "Lr",
+      "available": "continuous"
+    },
+    "Multidimensional Bayesian classifier": {
+      "id": "mbc",
+      "available": "both"
+    },
+    "Mutual information": {
+      "id": "mutual_information",
+      "available": "continuous"
+    },
+    "MMHC": {
+      "id": "mmhc",
+      "available": "both"
+    },
+    "MMPC": {
+      "id": "mmpc",
+      "available": "both"
+    },
+    "Naive Bayes": {
+      "id": "nb",
+      "available": "discrete"
+    },
+    "PC": {
+      "id": "pc",
+      "available": "both"
+    },
+    "Pearson correlation": {
+      "id": "pearson_correlation",
+      "available": "continuous"
+    },
+    "sparsebn": {
+      "id": "sparsebn",
+      "available": "both"
+    },
+    "Tree augmented naive Bayes": {
+      "id": "tan",
+      "available": "discrete"
+    }
+  }
+}

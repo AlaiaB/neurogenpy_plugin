@@ -1,0 +1,133 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: neurogenpy-plugin-deploy-template
+metadata:
+  annotations:
+    description: Deploy neurogenpy plugin
+    tags: python,async
+  name: neurogenpy-plugin-deploy-template
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+    name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-redis
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-redis
+    template:
+      metadata:
+        labels:
+          app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+          deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-redis
+      spec:
+        containers:
+        - image: redis:6-alpine
+          name: redis
+        restartPolicy: Always
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+      app_role: worker
+    name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-worker
+  spec:
+    replicas: ${WORKER_REPLICAS}
+    revisionHistoryLimit: 10
+    selector:
+      deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-worker
+    template:
+      metadata:
+        labels:
+          app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+          app_role: worker
+          deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-worker
+      spec:
+        containers:
+        - env:
+          - name: NEUROGENPY_CELERY_BROKER
+            value: redis://redis:6379
+          - name: NEUROGENPY_CELERY_RESULT
+            value: redis://redis:6379
+          image: ${WORKER_IMAGE}
+          name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-worker
+        restartPolicy: Always
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+      app_role: server
+    name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-server
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-server
+    template:
+      metadata:
+        labels:
+          app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+          app_role: server
+          deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-server
+      spec:
+        containers:
+        - env:
+          - name: NEUROGENPY_CELERY_BROKER
+            value: redis://redis:6379
+          - name: NEUROGENPY_CELERY_RESULT
+            value: redis://redis:6379
+          image: ${SERVER_IMAGE}
+          name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-server
+          ports:
+          - containerPort: 6001
+            protocol: TCP
+        restartPolicy: Always
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+    name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-service
+  spec:
+    ports:
+    - name: 6001-tcp
+      port: 6001
+      protocol: TCP
+      targetPort: 6001
+    selector:
+      deploymentconfig: neurogenpy-plugin-deploy-${PLUGIN_NAME}-server
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: neurogenpy-plugin-deploy-${PLUGIN_NAME}
+    name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-route
+  spec:
+    host: ${PLUGIN_ROUTE}
+    port:
+      targetPort: 6001-tcp
+    to:
+      kind: Service
+      name: neurogenpy-plugin-deploy-${PLUGIN_NAME}-service
+parameters:
+- description: Plugin name
+  name: PLUGIN_NAME
+  required: true
+- description: Plugin Route, without scheme (i.e. no https?://). should be [a-z0-9][a-z0-9-][a-z0-9].apps(-dev)?.hbp.eu
+  name: PLUGIN_ROUTE
+  required: true
+- description: Docker image for the worker
+  name: WORKER_IMAGE
+  required: true
+- description: Docker image for the server
+  name: SERVER_IMAGE
+  required: true
+- description: Number of worker replicas
+  name: WORKER_REPLICAS
+  value: "3"
